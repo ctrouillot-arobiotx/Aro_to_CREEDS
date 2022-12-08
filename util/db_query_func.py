@@ -153,8 +153,7 @@ def create_CREEDS_expression(DISEASE_expression_public):
     return CREEDS_UPDATE_expression
 
 def into_CREEDS_metadata_db( disease_df):
-    #for i in range(0,len(disease_df['disease'])):
-    for i in range(0, 1):
+    for i in range(0,len(disease_df['disease'])):
         sql = "INSERT INTO CREEDS_metadata SET \
                 disease='" + str(disease_df['disease'][i]) + "', \
                 cell_type='" + str(disease_df['cell_type'][i]) + "', \
@@ -171,17 +170,43 @@ def into_CREEDS_metadata_db( disease_df):
 
 
 def into_CREEDS_expression_db(disease_df):
-    for i in range(0,len(disease_df['disease'])):
+    for i in range(0, len(disease_df['disease'])):
         sql = "INSERT INTO CREEDS_expression SET \
                 SYMBOL='" + str(disease_df['SYMBOL'][i]) + "', \
                 DE_up='" + str(disease_df['DE_up'][i]) + "', \
-                disease_record=" + str(disease_df['disease_record'][i]) + " ON DUPLICATE KEY UPDATE"
+                disease_record='" + str(disease_df['record'][i]) + "' \
+                ON DUPLICATE KEY UPDATE \
+                SYMBOL='" + str(disease_df['SYMBOL'][i]) + "', \
+                DE_up='" + str(disease_df['DE_up'][i]) + "', \
+                disease_record='" + str(disease_df['record'][i]) + "'"
+
+        # run the command in mysql
+        cursor_TARGETID.execute(sql)
+
+        # Commit the changes to the database
+        cnx_TARGETID.commit()
+
+        #print(sql)
+
+def into_CREEDS_jaccard_overlap_db(jaccard_df):
+    for i in range(0,jaccard_df.shape[0]):
+        #TODO: Double check if there should be a "ON DUPLICATE KEY UPDATE"
+        sql = "INSERT INTO CREEDS_jaccard_overlap SET \
+                first_disease_record='" + str(jaccard_df['first_disease_record'][i]) + "', \
+                second_disease_record='" + str(jaccard_df['second_disease_record'][i]) + "', \
+                jaccard_index='" + str(jaccard_df['jaccard_index'][i]) + "' \
+                ON DUPLICATE KEY UPDATE  \
+                first_disease_record='" + str(jaccard_df['first_disease_record'][i]) + "', \
+                second_disease_record='" + str(jaccard_df['second_disease_record'][i]) + "', \
+                jaccard_index='" + str(jaccard_df['jaccard_index'][i]) + "'"
+
+
 
         # run the command in mysql
         print(sql)
         cursor_TARGETID.execute(sql)
 
         # Commit the changes to the database
-        #cnx.commit()
+        cnx_TARGETID.commit()
 
         #print(sql)
